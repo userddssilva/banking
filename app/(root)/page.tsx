@@ -7,12 +7,12 @@ import { getLoggedInUser } from '@/lib/actions/user.actions';
 
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
-  const loggedIn = await getLoggedInUser();
-  const accounts = await getAccounts({ 
-    userId: loggedIn.$id 
-  })
+  const loggedIn = {firstName:"Dayvson"}//await getLoggedInUser();
+  const accounts = {data:[{appwriteItemId:""}], totalBanks:10, totalCurrentBalance:1000} //await getAccounts({ 
+    // userId: loggedIn.$id 
+  // })
 
-  if(!accounts) return;
+  // if(!accounts) return;
   
   const accountsData = accounts?.data;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;

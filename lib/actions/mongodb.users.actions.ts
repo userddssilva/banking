@@ -1,3 +1,5 @@
+import { bcrypt } from "bcrypt";
+
 export async function signUp(userData: any) {
     try {
         const res = await fetch("/api/database/users", {
@@ -16,6 +18,20 @@ export async function signUp(userData: any) {
         return res;
     } catch (error) {
         console.error(`type: "error", text: ${(error as Error).stack}`);
+        return null;
+    }
+}
+
+export async function signIn({ email, password }: signInProps) {
+    try {
+        const res = await fetch(`/api/database/users?email=${email}`)
+        const data = await res.json();
+        
+        console.log(data);
+        return res;
+
+    } catch (error) {
+        console.error((error as Error).stack)
         return null;
     }
 }

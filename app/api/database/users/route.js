@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToMongoDb } from "@/lib/mongodb";
-import bcrypt from "bcrypt";
+import { bcrypt } from "bcrypt";
 
 export async function GET(req) {
   try {

@@ -2,23 +2,33 @@ import { NextResponse } from "next/server";
 import { connectToMongoDb } from "@/lib/mongodb";
 import { bcrypt } from "bcrypt";
 
+const {
+  MONGODB_DATABASE: MONGODB_DATABASE,
+  MONGODB_USERS_COLLECTION: MONGODB_USERS_COLLECTION
+} = process.env;
+
+async function getUsersCollection() {
+  const mongoClient = await connectToMongoDb();
+  const database = mongoClient.db(MONGODB_DATABASE);
+  const usersCollection = database.collection(MONGODB_USERS_COLLECTION);
+  return usersCollection;
+}
+
 export async function GET(req) {
   try {
 
     const { searchParams } = new URL(req.url);
     const email = searchParams.get("email");
 
-    const mongoClient = await connectToMongoDb();
-    const database = mongoClient.db(process.env.MONGODB_DATABASE);
-    const users = database.collection(process.env.MONGODB_USERS_COLLECTION);
+    const usersCollection = await getUsersCollection();
 
     if (!email) {
-      const allUsers = await users.find({}).skip(0).limit(10).toArray();
-      return NextResponse.json({ allUsers });
+      const usersDocs = await usersCollection.find({}).skip(0).limit(10).toArray();
+      return NextResponse.json({ usersDocs });
     } else {
-      const user = await users.findOne({ email });
+      const userDoc = await usersCollection.findOne({ email });
 
-      if (!user) {
+      if (!userDoc) {
         return new Response(
           JSON.stringify({ success: false, message: "Usuário não encontrado." }),
           { status: 404 }
@@ -44,12 +54,10 @@ export async function POST(req) {
     console.log(body);
 
     // Conectando ao MongoDB
-    const mongoClient = await connectToMongoDb();
-    const database = mongoClient.db(process.env.MONGODB_DATABASE);
-    const users = database.collection(process.env.MONGODB_USERS_COLLECTION);
+    const usersCollection = getUsersCollection();
 
     // Verificando se o e-mail já está registrado
-    const existingUser = await users.findOne({ email: body.email });
+    const existingUser = await usersCollection.findOne({ email: body.email });
     if (existingUser) {
       return new Response(
         JSON.stringify({ success: false, message: "E-mail já cadastrado." }),

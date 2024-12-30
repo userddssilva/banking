@@ -22,7 +22,8 @@ import CustomInput from './CustomInput';
 import { authFormSchema } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { getLoggedInUser, signIn, signUp } from '@/lib/actions/user.actions';
+import { getLoggedInUser, signIn, signUp as signUpAppWrite} from '@/lib/actions/user.actions';
+import { signUp } from '@/lib/actions/mongodb.actions';
 import PlaidLink from './PlaidLink';
 
 const AuthForm = ({ type }: { type: string }) => {
@@ -57,14 +58,17 @@ const AuthForm = ({ type }: { type: string }) => {
             state: data.state!,
             postalCode: data.postalCode!,
             dateOfBirth: data.dateOfBirth!,
-            ssn: data.ssn!,
+            // ssn: data.ssn!,
             email: data.email,
             password: data.password
           }
 
-          const newUser = await signUp(userData);
+          const response = await signUp(userData);
 
-          setUser(newUser);
+          if (response?.ok){
+            router.push("/");
+          }
+
         }
 
         if(type === 'sign-in') {
@@ -134,7 +138,7 @@ const AuthForm = ({ type }: { type: string }) => {
                   </div>
                   <div className="flex gap-4">
                     <CustomInput control={form.control} name='dateOfBirth' label="Date of Birth" placeholder='YYYY-MM-DD' />
-                    <CustomInput control={form.control} name='ssn' label="SSN" placeholder='Example: 1234' />
+                    {/* <CustomInput control={form.control} name='ssn' label="SSN" placeholder='Example: 1234' /> */}
                   </div>
                 </>
               )}

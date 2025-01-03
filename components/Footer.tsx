@@ -1,15 +1,21 @@
-import { logoutAccount } from '@/lib/actions/user.actions'
-import Image from 'next/image'
+// import { logoutAccount } from '@/lib/actions/user.actions'
+import { logout } from '@/lib/actions/mongodb.users.actions'
 import { useRouter } from 'next/navigation'
+
+import Image from 'next/image'
 import React from 'react'
 
 const Footer = ({ user, type = 'desktop' }: FooterProps) => {
   const router = useRouter();
 
-  const handleLogOut = async () => {
-    const loggedOut = await logoutAccount();
+  // const handleLogOut = async () => {
+  //   const loggedOut = await logoutAccount();
+  //   if(loggedOut) router.push('/sign-in')
+  // }
 
-    if(loggedOut) router.push('/sign-in')
+  const handleLogOut = () => {
+    logout();
+    router.push('/sign-in');
   }
 
   return (
@@ -21,12 +27,12 @@ const Footer = ({ user, type = 'desktop' }: FooterProps) => {
       </div>
 
       <div className={type === 'mobile' ? 'footer_email-mobile' : 'footer_email'}>
-          <h1 className="text-14 truncate text-gray-700 font-semibold">
-            {user?.firstName}
-          </h1>
-          <p className="text-14 truncate font-normal text-gray-600">
-            {user?.email}
-          </p>
+        <h1 className="text-14 truncate text-gray-700 font-semibold">
+          {user?.firstName}
+        </h1>
+        <p className="text-14 truncate font-normal text-gray-600">
+          {user?.email}
+        </p>
       </div>
 
       <div className="footer_image" onClick={handleLogOut}>

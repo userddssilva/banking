@@ -3,16 +3,23 @@ import RecentTransactions from '@/components/RecentTransactions';
 import RightSidebar from '@/components/RightSidebar';
 import TotalBalanceBox from '@/components/TotalBalanceBox';
 import { getAccount, getAccounts } from '@/lib/actions/bank.actions';
-import { getLoggedInUser } from '@/lib/actions/user.actions';
+// import { getLoggedInUser } from '@/lib/actions/user.actions';
+import { getSession } from '@/lib/actions/mongodb.users.actions';
 
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
-  const loggedIn = {firstName:"Dayvson"}//await getLoggedInUser();
-  const accounts = {data:[{appwriteItemId:""}], totalBanks:10, totalCurrentBalance:1000} //await getAccounts({ 
-    // userId: loggedIn.$id 
-  // })
+  // const loggedIn = await getLoggedInUser();
+  const loggedIn = await getSession();
+  // const accounts = {data:[{appwriteItemId:""}], totalBanks:10, totalCurrentBalance:1000} //await getAccounts({ 
+  //   // userId: loggedIn.$id 
+  // // })
+  const accounts = await getAccounts({ 
+    userId: loggedIn?._id 
+  })
 
   // if(!accounts) return;
+  console.log(`root page - loggedIn: ${loggedIn?._id}`)
+  if (!loggedIn) return;
   
   const accountsData = accounts?.data;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;

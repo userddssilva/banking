@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToMongoDb } from "@/lib/mongodb";
-import { bcrypt } from "bcrypt";
+import { bcrypt } from "bcryptjs";
 
 const {
   MONGODB_DATABASE: MONGODB_DATABASE,
@@ -26,7 +26,7 @@ export async function GET(req) {
       const usersDocs = await usersCollection.find({}).skip(0).limit(10).toArray();
       return NextResponse.json({ usersDocs });
     } else {
-      const userDoc = await usersCollection.findOne({ email });
+      const userDoc = await usersCollection.findOne({ email: email});
 
       if (!userDoc) {
         return new Response(
@@ -35,7 +35,7 @@ export async function GET(req) {
         );
       }
 
-      return NextResponse.json({ user })
+      return NextResponse.json({ userDoc })
     }
   } catch (error) {
     console.error("Erro:", error);

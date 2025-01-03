@@ -22,7 +22,7 @@ import CustomInput from './CustomInput';
 import { authFormSchema } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { getLoggedInUser, signIn as signInAppWrite, signUp as signUpAppWrite } from '@/lib/actions/user.actions';
+// import { getLoggedInUser, signIn, signUp } from '@/lib/actions/user.actions';
 import { signUp, signIn } from '@/lib/actions/mongodb.users.actions';
 import PlaidLink from './PlaidLink';
 
@@ -48,6 +48,7 @@ const AuthForm = ({ type }: { type: string }) => {
 
     try {
       // Sign up with Appwrite & create plaid token
+      let response: Response | null = null
 
       if (type === 'sign-up') {
         const userData = {
@@ -62,23 +63,18 @@ const AuthForm = ({ type }: { type: string }) => {
           password: data.password
         }
 
-        const response = await signUp(userData);
-
-        if (response?.ok) {
-          router.push("/");
-        }
-
+        response = await signUp(userData);
       }
 
       if (type === 'sign-in') {
-        const response = await signIn({
+        response = await signIn({
           email: data.email,
           password: data.password
         });
+      }
 
-        if (response) {
-          router.push('/')
-        }
+      if (response) {
+        router.push("/");
       }
     } catch (error) {
       console.log(error);

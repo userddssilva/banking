@@ -4,8 +4,10 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { parseStringify } from "../utils";
-import bcrypt from "bcryptjs";
+import { headers } from "next/headers";
 
+import * as Sentry from '@sentry/nextjs';
+import bcrypt from "bcryptjs";
 
 const secretKey = "secret";
 const key = new TextEncoder().encode(secretKey);
@@ -25,9 +27,17 @@ export async function decrypt(input: string): Promise<any> {
     return payload;
 }
 
+export async function getHost() {
+    const host = headers().get('host'); // Obtém o host
+    const protocol = headers().get('x-forwarded-proto') || 'http'; // Obtém o protocolo
+    return `${protocol}://${host}`; // Retorna a URL completa
+}
+
 export async function signUp(userData: any) {
     try {
-        const res = await fetch("/api/database/users", {
+        const host = await getHost();
+        const url = `${host}/api/database/users`;
+        const res = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -38,7 +48,11 @@ export async function signUp(userData: any) {
         // Get the user data recovery from api
         const data = await res.json();
         if (!res.ok) {
-            throw new Error(data.message);
+            // throw new Error(data.message);
+            if (res.status === 400){
+                //TODO: Tratar o erro de email já cadastrado
+                return null;
+            }
         }
 
         // If the user is valid create a new session
@@ -47,6 +61,7 @@ export async function signUp(userData: any) {
         console.log(`type: "success", text: ${data.message}`);
         return res;
     } catch (error) {
+        Sentry.captureException(error);
         console.error(`type: "error", text: ${(error as Error).stack}`);
         return null;
     }
@@ -54,22 +69,22 @@ export async function signUp(userData: any) {
 
 export async function signIn({ email, password }: signInProps) {
     try {
-        const res = await fetch(`http://localhost:3000/api/database/users?email=${email}`)
+        const host =  await getHost();
+        const url = `${host}/api/database/users?email=${email}`;
+        const res = await fetch(url)
         const userFounded = await res.json();
 
         // Comparando a senha fornecida com a armazenada
         const passwordMatch = await bcrypt.compare(password, userFounded.userDoc.password);
         if (!passwordMatch) {
-            return new Response(
+            return new NextResponse(
                 JSON.stringify({ success: false, message: "Senha incorreta." }),
                 { status: 401 }
             );
         }
 
-        console.log("Creating a new session");
         // creating a new session
         createSession(userFounded);
-        console.log("Finishing creation of session");
 
         let _res = null;
         if (res) {
@@ -126,6 +141,6 @@ export async function updateSession(request: NextRequest) {
         expires: parsed.expires
     });
 
-    
+
     return res;
 }

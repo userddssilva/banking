@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToMongoDb } from "@/lib/mongodb";
-import { bcrypt } from "bcryptjs";
+
+import bcrypt from "bcryptjs";
 
 const {
   MONGODB_DATABASE: MONGODB_DATABASE,
@@ -26,23 +27,17 @@ export async function GET(req) {
       const usersDocs = await usersCollection.find({}).skip(0).limit(10).toArray();
       return NextResponse.json({ usersDocs });
     } else {
-      const userDoc = await usersCollection.findOne({ email: email});
+      const userDoc = await usersCollection.findOne({ email: email });
 
       if (!userDoc) {
-        return new Response(
-          JSON.stringify({ success: false, message: "Usuário não encontrado." }),
-          { status: 404 }
-        );
+        return new NextResponse(JSON.stringify({ Error: "Usuário não encontrado." }), { status: 404 });
       }
 
       return NextResponse.json({ userDoc })
     }
   } catch (error) {
     console.error("Erro:", error);
-    return new Response(
-      JSON.stringify({ success: false, error: "Erro interno do servidor." }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "Erro interno do servidor." }),{ status: 500 });
   }
 }
 
@@ -51,21 +46,18 @@ export async function POST(req) {
     // Obtendo os dados do corpo da requisição
     const body = await req.json();
 
-    console.log(body);
-
     // Conectando ao MongoDB
-    const usersCollection = getUsersCollection();
+    const usersCollection = await getUsersCollection();
 
     // Verificando se o e-mail já está registrado
     const existingUser = await usersCollection.findOne({ email: body.email });
     if (existingUser) {
-      return new Response(
-        JSON.stringify({ success: false, message: "E-mail já cadastrado." }),
-        { status: 400 }
-      );
+      return new NextResponse(JSON.stringify({ Error: "Email já cadastrado." }), { status: 400 });
     }
 
-    // Criptografar a senha (opcional, mas recomendado)
+    // Gera um "salt" com 10 rounds
+    const salt = await bcrypt.genSalt(10);
+    // Cria o hash da senha usando o salt  
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     // Inserindo o novo usuário no banco de dados
@@ -82,17 +74,11 @@ export async function POST(req) {
       createdAt: new Date(),
     };
 
-    await users.insertOne(newUser);
+    await usersCollection.insertOne(newUser);
 
-    return new Response(
-      JSON.stringify({ success: true, message: "Usuário cadastrado com sucesso!" }),
-      { status: 201 }
-    );
+    return new NextResponse(JSON.stringify("Usuário cadastrado com sucesso!"), { status: 201 });
   } catch (error) {
     console.error("Erro ao cadastrar usuário:", error);
-    return new Response(
-      JSON.stringify({ success: false, message: "Erro interno do servidor." }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ Error: "Erro interno do servidor." }), { status: 500 });
   }
 }

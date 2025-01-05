@@ -1,31 +1,8 @@
 "use server"
 
-import { jwtVerify, SignJWT } from "jose";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { parseStringify } from "../utils";
 import { headers } from "next/headers";
-
-import * as Sentry from '@sentry/nextjs';
+import { createSession } from "../session";
 import bcrypt from "bcryptjs";
-
-const secretKey = "secret";
-const key = new TextEncoder().encode(secretKey);
-
-export async function encrypt(paylod: any) {
-    return await new SignJWT(paylod)
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setExpirationTime("10 sec from now")
-        .sign(key);
-}
-
-export async function decrypt(input: string): Promise<any> {
-    const { payload } = await jwtVerify(input, key, {
-        algorithms: ["HS256"],
-    });
-    return payload;
-}
 
 export async function getHost() {
     const host = headers().get('host'); // Obtém o host
@@ -38,6 +15,7 @@ export async function signUp(userData: any) {
         const host = await getHost();
         const url = `${host}/api/database/users`;
         console.log(`URL: ${url}`);
+
         const res = await fetch(url, {
             method: "POST",
             headers: {
@@ -46,23 +24,24 @@ export async function signUp(userData: any) {
             body: JSON.stringify(userData),
         });
 
-        // Get the user data recovery from api
-        const data = await res.json();
-        if (!res.ok) {
-            // throw new Error(data.message);
-            if (res.status === 400){
-                //TODO: Tratar o erro de email já cadastrado
-                return null;
-            }
+        if (res.status === 400) {
+            return JSON.stringify({ success: false, message: "Email já cadastrado.", status: 400 });
         }
 
-        // If the user is valid create a new session
-        createSession(data);
+        // Get the user data recovery from api
+        const user_data = await res.json();
+        console.log(`User created: ${JSON.stringify(user_data, null, 2)}`);
 
-        console.log(`type: "success", text: ${data.message}`);
-        return res;
+        // If the user is valid create a new session
+        if (user_data) {
+            console.log(`type: "success", user_data: ${JSON.stringify(user_data, null, 2)}`);
+            createSession(user_data);
+            return JSON.stringify({ success: true, message: user_data, status: 200 });
+        } else {
+            console.log(`type: "error", text: "Erro ao criar usuário."`);
+            return null;
+        }
     } catch (error) {
-        Sentry.captureException(error);
         console.error(`type: "error", text: ${(error as Error).stack}`);
         return null;
     }
@@ -70,80 +49,33 @@ export async function signUp(userData: any) {
 
 export async function signIn({ email, password }: signInProps) {
     try {
-        const host =  await getHost();
+        const host = await getHost();
         const url = `${host}/api/database/users?email=${email}`;
         console.log(`URL: ${url}`);
+
         const res = await fetch(url)
         const userFounded = await res.json();
-        console.log(`User founded: ${userFounded}`);
+        console.log(`User founded: ${JSON.stringify(userFounded, null, 2)}`);
+
+        if (res.status === 404) {
+            return JSON.stringify({ success: false, message: "Usuário não encontrado.", status: 404 });
+        }
 
         // Comparando a senha fornecida com a armazenada
-        const passwordMatch = await bcrypt.compare(password, userFounded.userDoc.password);
+        const passwordMatch = await bcrypt.compare(password, userFounded.password);
         if (!passwordMatch) {
-            return new NextResponse(
-                JSON.stringify({ success: false, message: "Senha incorreta." }),
-                { status: 401 }
-            );
+            return JSON.stringify({ success: false, message: "Senha incorreta.", status: 401 });
         }
 
-        // creating a new session
-        createSession(userFounded);
-
-        let _res = null;
-        if (res) {
-            _res = parseStringify(res);
+        if (userFounded) {
+            // creating a new session
+            createSession(userFounded);
+            return JSON.stringify({ success: true, message: userFounded, status: 200 });
+        } else {
+            return null;
         }
-        return _res;
     } catch (error) {
         console.error((error as Error).stack)
         return null;
     }
-}
-
-export async function logout() {
-
-    // Destroy the session
-    console.log("Destroying the session");
-    cookies().set("session", "", { expires: new Date(0) });
-}
-
-export async function getSession() {
-    const session = cookies().get("session")?.value;
-    if (!session) return null;
-    console.log("Getting the session");
-    const sessionValue = await decrypt(session);
-    console.log(`Session user: ${sessionValue.user.userDoc}`);
-    return sessionValue.user.userDoc;
-}
-
-export async function createSession(user: any) {
-
-    // Create the session
-    console.log("Starting create new session");
-    const expires = new Date(Date.now() + 10 * 1000);
-    const session = await encrypt({ user, expires });
-
-    // Save the session in a cookie
-    cookies().set("session", session, { expires, httpOnly: true });
-    console.log("Finishing the creation of new session");
-}
-
-export async function updateSession(request: NextRequest) {
-    const session = request.cookies.get("session")?.value;
-    if (!session) return;
-
-    // Refresh the session so it doens't 
-    const parsed = await decrypt(session);
-    parsed.expires = new Date(Date.now() + 10 * 1000);
-
-    const res = NextResponse.next();
-    res.cookies.set({
-        name: "session",
-        value: await encrypt(parsed),
-        httpOnly: true,
-        expires: parsed.expires
-    });
-
-
-    return res;
 }

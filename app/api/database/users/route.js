@@ -28,12 +28,13 @@ export async function GET(req) {
       return NextResponse.json({ usersDocs });
     } else {
       const userDoc = await usersCollection.findOne({ email: email });
+      console.log(`userDoc: ${JSON.stringify(userDoc, null, 2)}`);
 
       if (!userDoc) {
         return new NextResponse(JSON.stringify({ Error: "Usuário não encontrado." }), { status: 404 });
       }
 
-      return NextResponse.json({ userDoc })
+      return new NextResponse(JSON.stringify(userDoc))
     }
   } catch (error) {
     console.error("Erro:", error);

@@ -4,12 +4,13 @@ import RightSidebar from '@/components/RightSidebar';
 import TotalBalanceBox from '@/components/TotalBalanceBox';
 import { getAccount, getAccounts } from '@/lib/actions/bank.actions';
 // import { getLoggedInUser } from '@/lib/actions/user.actions';
-import { getSession } from '@/lib/actions/mongodb.users.actions';
+import { getSession } from '@/lib/session';
 
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
   // const loggedIn = await getLoggedInUser();
-  const loggedIn = await getSession();
+  const session = await getSession();
+  const loggedIn = session?.user;
   // const accounts = {data:[{appwriteItemId:""}], totalBanks:10, totalCurrentBalance:1000} //await getAccounts({ 
   //   // userId: loggedIn.$id 
   // // })

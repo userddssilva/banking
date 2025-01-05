@@ -1,5 +1,5 @@
 // import { logoutAccount } from '@/lib/actions/user.actions'
-import { logout } from '@/lib/actions/mongodb.users.actions'
+import { logout } from '@/lib/session'
 import { useRouter } from 'next/navigation'
 
 import Image from 'next/image'

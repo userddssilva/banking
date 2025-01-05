@@ -37,6 +37,7 @@ export async function signUp(userData: any) {
     try {
         const host = await getHost();
         const url = `${host}/api/database/users`;
+        console.log(`URL: ${url}`);
         const res = await fetch(url, {
             method: "POST",
             headers: {
@@ -71,8 +72,10 @@ export async function signIn({ email, password }: signInProps) {
     try {
         const host =  await getHost();
         const url = `${host}/api/database/users?email=${email}`;
+        console.log(`URL: ${url}`);
         const res = await fetch(url)
         const userFounded = await res.json();
+        console.log(`User founded: ${userFounded}`);
 
         // Comparando a senha fornecida com a armazenada
         const passwordMatch = await bcrypt.compare(password, userFounded.userDoc.password);

@@ -10,6 +10,8 @@ import { plaidClient } from '@/lib/plaid';
 import { revalidatePath } from "next/cache";
 import { addFundingSource, createDwollaCustomer } from "./dwolla.actions";
 
+import { getSession } from "../session";
+
 const {
   APPWRITE_DATABASE_ID: DATABASE_ID,
   APPWRITE_USER_COLLECTION_ID: USER_COLLECTION_ID,
@@ -105,7 +107,7 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
   }
 }
 
-export async function getLoggedInUser() {
+export async function _getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
     const result = await account.get();
@@ -113,6 +115,19 @@ export async function getLoggedInUser() {
     const user = await getUserInfo({ userId: result.$id})
 
     return parseStringify(user);
+  } catch (error) {
+    console.log(error)
+    return null;
+  }
+}
+
+export async function getLoggedInUser() {
+  try {
+    const session = await getSession();
+
+    if (!session) return null;
+
+    return parseStringify(session.user);
   } catch (error) {
     console.log(error)
     return null;

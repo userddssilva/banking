@@ -2,17 +2,18 @@ import HeaderBox from '@/components/HeaderBox'
 import { Pagination } from '@/components/Pagination';
 import TransactionsTable from '@/components/TransactionsTable';
 import { getAccount, getAccounts } from '@/lib/actions/bank.actions';
-import { getLoggedInUser } from '@/lib/actions/user.actions';
+// import { getLoggedInUser } from '@/lib/actions/user.actions';
 import { formatAmount } from '@/lib/utils';
 import { PaymentChannel } from 'plaid';
 import React from 'react'
 
 const TransactionHistory = async ({ searchParams: { id, page }}:SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
-  const loggedIn = await getLoggedInUser();
-  const accounts = {data:[{appwriteItemId:""}]}// await getAccounts({ 
+  // const loggedIn = await getLoggedInUser();
+  // const accounts = {data:[{appwriteItemId:""}]}// await getAccounts({ 
     // userId: loggedIn.$id 
   // })
+  const accounts = await getAccounts({ userId: "2fsdf-dfas23-sdfasdf-23rf"});
 
   if(!accounts) return;
   
@@ -28,14 +29,14 @@ const totalPages = Math.ceil(account?.transactions.length / rowsPerPage);
 const indexOfLastTransaction = currentPage * rowsPerPage;
 const indexOfFirstTransaction = indexOfLastTransaction - rowsPerPage;
 
-// const currentTransactions = account?.transactions.slice(
-//   indexOfFirstTransaction, indexOfLastTransaction
-// )
+const currentTransactions = account?.transactions.slice(
+  indexOfFirstTransaction, indexOfLastTransaction
+)
 
-const currentTransactions = [
-  {id:"001", type:"debit", name:"Uber 063015 SFPOOL", amount:5.40, date:"2022-09-19 17:44:17.858167", paymentChannel:"Channel", category:"Travel"},
-  {id:"001", type:"credit", name:"Uber 063015 SFPOOL", amount:5.40, date:"2022-09-19 17:44:17.858167", paymentChannel:"Channel", category:"Travel"},
-]
+// const currentTransactions = [
+//   {id:"001", type:"debit", name:"Uber 063015 SFPOOL", amount:5.40, date:"2022-09-19 17:44:17.858167", paymentChannel:"Channel", category:"Travel"},
+//   {id:"001", type:"credit", name:"Uber 063015 SFPOOL", amount:5.40, date:"2022-09-19 17:44:17.858167", paymentChannel:"Channel", category:"Travel"},
+// ]
   return (
     <div className="transactions">
       <div className="transactions-header">

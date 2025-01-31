@@ -2,12 +2,13 @@ import BankCard from '@/components/BankCard';
 import HeaderBox from '@/components/HeaderBox'
 import { getAccounts } from '@/lib/actions/bank.actions';
 import { getLoggedInUser } from '@/lib/actions/user.actions';
-import { mockRequestAccounts } from '@/app/mocks/mock-data';
+// import { mockRequestAccounts } from '@/app/mocks/mock-data';
 import React from 'react'
 
 const MyBanks = async () => {
   const loggedIn = await getLoggedInUser();
-  // const accounts = await getAccounts({ userId: loggedIn.$id })
+  // const accounts = await getAccounts({ userId: loggedIn.$id });
+  const accounts = await getAccounts({ userId: "2fsdf-dfas23-sdfasdf-23rf"});
 
   return (
     <section className='flex'>
@@ -22,9 +23,9 @@ const MyBanks = async () => {
             Your cards
           </h2>
           <div className="flex flex-wrap gap-6">
-            {mockRequestAccounts && mockRequestAccounts.data.map((a: Account) => (
+            {accounts && accounts.data.map((a: Account) => (
               <BankCard
-                key={mockRequestAccounts.id}
+                key={accounts.id}
                 account={a}
                 userName={loggedIn?.firstName}
               />

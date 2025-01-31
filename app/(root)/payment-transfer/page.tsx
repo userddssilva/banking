@@ -1,12 +1,12 @@
 import HeaderBox from '@/components/HeaderBox'
 import PaymentTransferForm from '@/components/PaymentTransferForm'
 import { getAccounts } from '@/lib/actions/bank.actions';
-import { getLoggedInUser } from '@/lib/actions/user.actions';
+// import { getLoggedInUser } from '@/lib/actions/user.actions';
 import { mockRequestAccounts } from '@/app/mocks/mock-data';
 import React from 'react'
 
 const Transfer = async () => {
-  const loggedIn = await getLoggedInUser();
+  // const loggedIn = await getLoggedInUser();
 
   // const accounts = await getAccounts({ 
   //   userId: loggedIn.$id 

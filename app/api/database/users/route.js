@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import { connectToMongoDb } from "@/lib/mongodb";
-import { bcrypt } from "bcrypt";
+
+import bcrypt from "bcryptjs";
+
+const {
+  MONGODB_DATABASE: MONGODB_DATABASE,
+  MONGODB_USERS_COLLECTION: MONGODB_USERS_COLLECTION
+} = process.env;
+
+async function getUsersCollection() {
+  const mongoClient = await connectToMongoDb();
+  const database = mongoClient.db(MONGODB_DATABASE);
+  const usersCollection = database.collection(MONGODB_USERS_COLLECTION);
+  return usersCollection;
+}
 
 export async function GET(req) {
   try {
@@ -8,31 +21,24 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get("email");
 
-    const mongoClient = await connectToMongoDb();
-    const database = mongoClient.db(process.env.MONGODB_DATABASE);
-    const users = database.collection(process.env.MONGODB_USERS_COLLECTION);
+    const usersCollection = await getUsersCollection();
 
     if (!email) {
-      const allUsers = await users.find({}).skip(0).limit(10).toArray();
-      return NextResponse.json({ allUsers });
+      const usersDocs = await usersCollection.find({}).skip(0).limit(10).toArray();
+      return NextResponse.json({ usersDocs });
     } else {
-      const user = await users.findOne({ email });
+      const userDoc = await usersCollection.findOne({ email: email });
+      console.log(`userDoc: ${JSON.stringify(userDoc, null, 2)}`);
 
-      if (!user) {
-        return new Response(
-          JSON.stringify({ success: false, message: "Usuário não encontrado." }),
-          { status: 404 }
-        );
+      if (!userDoc) {
+        return new NextResponse(JSON.stringify({ Error: "Usuário não encontrado." }), { status: 404 });
       }
 
-      return NextResponse.json({ user })
+      return new NextResponse(JSON.stringify(userDoc))
     }
   } catch (error) {
     console.error("Erro:", error);
-    return new Response(
-      JSON.stringify({ success: false, error: "Erro interno do servidor." }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "Erro interno do servidor." }),{ status: 500 });
   }
 }
 
@@ -41,23 +47,18 @@ export async function POST(req) {
     // Obtendo os dados do corpo da requisição
     const body = await req.json();
 
-    console.log(body);
-
     // Conectando ao MongoDB
-    const mongoClient = await connectToMongoDb();
-    const database = mongoClient.db(process.env.MONGODB_DATABASE);
-    const users = database.collection(process.env.MONGODB_USERS_COLLECTION);
+    const usersCollection = await getUsersCollection();
 
     // Verificando se o e-mail já está registrado
-    const existingUser = await users.findOne({ email: body.email });
+    const existingUser = await usersCollection.findOne({ email: body.email });
     if (existingUser) {
-      return new Response(
-        JSON.stringify({ success: false, message: "E-mail já cadastrado." }),
-        { status: 400 }
-      );
+      return new NextResponse(JSON.stringify({ Error: "Email já cadastrado." }), { status: 400 });
     }
 
-    // Criptografar a senha (opcional, mas recomendado)
+    // Gera um "salt" com 10 rounds
+    const salt = await bcrypt.genSalt(10);
+    // Cria o hash da senha usando o salt  
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     // Inserindo o novo usuário no banco de dados
@@ -74,17 +75,11 @@ export async function POST(req) {
       createdAt: new Date(),
     };
 
-    await users.insertOne(newUser);
+    await usersCollection.insertOne(newUser);
 
-    return new Response(
-      JSON.stringify({ success: true, message: "Usuário cadastrado com sucesso!" }),
-      { status: 201 }
-    );
+    return new NextResponse(JSON.stringify("Usuário cadastrado com sucesso!"), { status: 201 });
   } catch (error) {
     console.error("Erro ao cadastrar usuário:", error);
-    return new Response(
-      JSON.stringify({ success: false, message: "Erro interno do servidor." }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ Error: "Erro interno do servidor." }), { status: 500 });
   }
 }

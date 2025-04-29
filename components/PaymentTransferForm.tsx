@@ -166,54 +166,6 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
 
         <FormField
           control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="border-t border-gray-200">
-              <div className="payment-transfer_form-item py-5">
-                <FormLabel className="text-14 w-full max-w-[280px] font-medium text-gray-700">
-                  Recipient&apos;s Email Address
-                </FormLabel>
-                <div className="flex w-full flex-col">
-                  <FormControl>
-                    <Input
-                      placeholder="ex: johndoe@gmail.com"
-                      className="input-class"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-12 text-red-500" />
-                </div>
-              </div>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="sharableId"
-          render={({ field }) => (
-            <FormItem className="border-t border-gray-200">
-              <div className="payment-transfer_form-item pb-5 pt-6">
-                <FormLabel className="text-14 w-full max-w-[280px] font-medium text-gray-700">
-                  Receiver&apos;s Plaid Sharable Id
-                </FormLabel>
-                <div className="flex w-full flex-col">
-                  <FormControl>
-                    <Input
-                      placeholder="Enter the public account number"
-                      className="input-class"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-12 text-red-500" />
-                </div>
-              </div>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="amount"
           render={({ field }) => (
             <FormItem className="border-y border-gray-200">

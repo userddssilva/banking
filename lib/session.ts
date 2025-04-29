@@ -51,19 +51,20 @@ export async function createSession(user: any) {
 
 export async function updateSession(request: NextRequest) {
     const session = request.cookies.get("session")?.value;
-    if (!session) return;
+    // if (!session) return;
 
     // Refresh the session so it doens't 
-    const parsed = await decrypt(session);
-    parsed.expires = new Date(Date.now() + 10 * 1000);
+    // const parsed = await decrypt(session);
+    // parsed.expires = new Date(Date.now() + 10 * 1000);
 
-    const res = NextResponse.next();
-    res.cookies.set({
-        name: "session",
-        value: await encrypt(parsed),
-        httpOnly: true,
-        expires: parsed.expires
-    });
+    // const res = NextResponse.next();
+    // res.cookies.set({
+    //     name: "session",
+    //     value: await encrypt(parsed),
+    //     httpOnly: true,
+    //     expires: parsed.expires
+    // });
 
-    return res;
+    // return res;
+    return null;
 }

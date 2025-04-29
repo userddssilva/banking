@@ -209,3 +209,173 @@ export const authFormSchema = (type: string) => z.object({
   email: z.string().email(),
   password: z.string().min(8),
 })
+
+const accounts = {
+
+  data: [
+      {
+          appwriteItemId: 'acc001',
+          name: 'Itaú Conta Corrente',
+          type: 'Checking',
+          currentBalance: 3250.75,
+          agency: '1234',
+          accountNumber: '56789-0',
+          sharaebleId: 'SHR-ACC-001',
+          pix: '123.456.789-00',
+      },
+      {
+          appwriteItemId: 'acc002',
+          name: 'Nubank Poupança',
+          type: 'Savings',
+          currentBalance: 10450.10,
+          agency: '0001',
+          accountNumber: '88888-1',
+          sharaebleId: 'SHR-ACC-002',
+          pix: 'meuemail@exemplo.com',
+      },
+      {
+          appwriteItemId: 'acc003',
+          name: 'Banco do Brasil',
+          type: 'Checking',
+          currentBalance: 810.00,
+          agency: '9876',
+          accountNumber: '54321-2',
+          sharaebleId: 'SHR-ACC-003',
+          pix: '(11) 91234-5678',
+      },
+      {
+          appwriteItemId: 'acc001',
+          name: 'Itaú Conta Corrente',
+          type: 'Checking',
+          currentBalance: 3250.75,
+          agency: '1234',
+          accountNumber: '56789-0',
+          sharaebleId: 'SHR-ACC-001',
+          pix: '123.456.789-00',
+      },
+      {
+          appwriteItemId: 'acc002',
+          name: 'Nubank Poupança',
+          type: 'Savings',
+          currentBalance: 10450.10,
+          agency: '0001',
+          accountNumber: '88888-1',
+          sharaebleId: 'SHR-ACC-002',
+          pix: 'meuemail@exemplo.com',
+      },
+      {
+          appwriteItemId: 'acc003',
+          name: 'Banco do Brasil',
+          type: 'Checking',
+          currentBalance: 810.00,
+          agency: '9876',
+          accountNumber: '54321-2',
+          sharaebleId: 'SHR-ACC-003',
+          pix: '(11) 91234-5678',
+      },
+      {
+          appwriteItemId: 'acc004',
+          name: 'Bradesco PJ',
+          type: 'Business',
+          currentBalance: 22000.50,
+          agency: '1122',
+          accountNumber: '33445-6',
+          sharaebleId: 'SHR-ACC-004',
+          pix: 'empresa@bradesco.com',
+      },
+      {
+          appwriteItemId: 'acc005',
+          name: 'Santander Universitário',
+          type: 'Student',
+          currentBalance: 150.20,
+          agency: '5678',
+          accountNumber: '67890-1',
+          sharaebleId: 'SHR-ACC-005',
+          pix: 'universitario@santander.com',
+      },
+      {
+          appwriteItemId: 'acc006',
+          name: 'Neon Conta Digital',
+          type: 'Digital',
+          currentBalance: 6543.00,
+          agency: '0005',
+          accountNumber: '11223-4',
+          sharaebleId: 'SHR-ACC-006',
+          pix: 'neon.pix@neon.com.br',
+      },
+      {
+          appwriteItemId: 'acc007',
+          name: 'Inter Conta Poupança',
+          type: 'Savings',
+          currentBalance: 9200.00,
+          agency: '0043',
+          accountNumber: '98765-4',
+          sharaebleId: 'SHR-ACC-007',
+          pix: 'inter@pix.com',
+      },
+      {
+          appwriteItemId: 'acc008',
+          name: 'C6 Bank',
+          type: 'Checking',
+          currentBalance: 312.77,
+          agency: '1001',
+          accountNumber: '12345-7',
+          sharaebleId: 'SHR-ACC-008',
+          pix: 'c6-user@c6.com',
+      },
+      {
+          appwriteItemId: 'acc009',
+          name: 'Caixa Econômica',
+          type: 'Savings',
+          currentBalance: 199.99,
+          agency: '1040',
+          accountNumber: '00123-0',
+          sharaebleId: 'SHR-ACC-009',
+          pix: 'cpf.caixa@pix.com',
+      },
+      {
+          appwriteItemId: 'acc010',
+          name: 'PagBank Conta Digital',
+          type: 'Digital',
+          currentBalance: 8300.45,
+          agency: '0301',
+          accountNumber: '55667-8',
+          sharaebleId: 'SHR-ACC-010',
+          pix: 'paguser@pagseguro.com',
+      },
+      {
+          appwriteItemId: 'acc011',
+          name: 'Original Investimentos',
+          type: 'Investment',
+          currentBalance: 42000.00,
+          agency: '9090',
+          accountNumber: '99887-6',
+          sharaebleId: 'SHR-ACC-011',
+          pix: 'invest@original.com',
+      },
+      {
+          appwriteItemId: 'acc012',
+          name: 'Mercado Pago',
+          type: 'Wallet',
+          currentBalance: 300.00,
+          agency: 'MP00',
+          accountNumber: '44556-9',
+          sharaebleId: 'SHR-ACC-012',
+          pix: 'mercado@pix.com',
+      },
+  ]
+}
+
+export const getAccountById = (id: string) => {
+  const account = accounts.data.find((a) => a.appwriteItemId === id);
+
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  return account;
+}
+
+export const getAccounts = () => {
+  return accounts.data;
+}

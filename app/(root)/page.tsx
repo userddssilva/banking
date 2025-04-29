@@ -20,7 +20,7 @@ const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
 
   // if(!accounts) return;
   console.log(`root page - loggedIn: ${loggedIn?._id}`)
-  if (!loggedIn) return;
+  // if (!loggedIn) return;
   
   const accountsData = accounts?.data;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
